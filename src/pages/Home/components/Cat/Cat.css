@@ -1,0 +1,15 @@
+.cat-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.cat-login{
+    text-decoration: underline;
+    box-sizing: border-box;
+    margin: auto;
+    padding: 20px;
+    font-size: 14px;
+}
