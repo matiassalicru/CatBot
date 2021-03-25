@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
 
-import { CatItem } from "./CatItem/CatItem";
-import "./Chat.css";
-import { InputChat } from "./InputChat/InputChat";
-import Select from "./Select/Select";
-import { UserItem } from "./UserItem/UserItem";
 import { doing, about } from "../../data/Actions";
-
-
+import { InputChat } from "./InputChat/InputChat";
+import { UserItem } from "./UserItem/UserItem";
+import { CatItem } from "./CatItem/CatItem";
+import Select from "./Select/Select";
+import "./Chat.css";
 
 const Chat = () => {
   let idCounter = 0;
 
-  const [msg, setMsg] = useState({});
+  const [msg, setMsg] = useState({
+    id: idCounter,
+    emitter: "User",
+    msg: "",
+  });
   const [openSelect, setOpenSelect] = useState(false);
   const [chat, setChat] = useState([
     {
@@ -69,21 +71,6 @@ const Chat = () => {
     }
   }
 
-  const options = [
-    {
-      id: "doing",
-      text: "Que haces?",
-    },
-    // {
-    //   id: "Send me a meme",
-    //   text: "Mándame un mensaje",
-    // },
-    {
-      id: "about",
-      text: "Contame sobre vos",
-    },
-  ];
-
   const [interactions, setInteractions] = useState([]);
 
   const handleSelectedActions = (value) => {
@@ -96,25 +83,35 @@ const Chat = () => {
           setInteractions([...interactions, result.msg]);
         }
         break;
+
       case "about":
         result = about[Math.floor(Math.random() * about.length)];
         if (result) {
-          setInteractions([...interactions, result]);
+          setInteractions([...interactions, result.msg]);
         }
+
         break;
 
       default:
         console.log("No hay valores");
         return;
     }
-    console.log(interactions);
   };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [interactions]);
+
+  function scrollToBottom() {
+    const chat = document.getElementById("chat");
+    chat.scrollTop = chat.scrollHeight;
+  }
 
   return (
     <div className="chatbot-chat-container">
       <div className="chatbot-chat-content">
         <div className="chatbot-chat">
-          <div className="chatbot-chat-container-body">
+          <div id="chat" className="chatbot-chat-container-body">
             {chat.map((chat, index) =>
               chat.emitter === "Cat" ? (
                 <CatItem text={chat.msg} key={index} />
@@ -123,14 +120,19 @@ const Chat = () => {
               )
             )}
             {openSelect && (
-              <Select
-                handleSelectedActions={handleSelectedActions}
-                options={options}
-              />
+              <Select handleSelectedActions={handleSelectedActions} />
             )}
+            {interactions.length > 0 &&
+              interactions.map((interaction, i) => (
+                <div key={i}>
+                  <CatItem text={interaction} />
+                  <Select handleSelectedActions={handleSelectedActions} />
+                </div>
+              ))}
           </div>
           <div className="chatbot-chat-container-input">
             <InputChat
+              chat={chat}
               msg={msg}
               getMeMessage={getMeMessage}
               sendMessage={sendMessage}
